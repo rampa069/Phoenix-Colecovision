@@ -162,11 +162,16 @@ architecture rtl of colecovision is
 
    -- Internal 1K RAM
    type ram1k_t is array (0 to 1023) of std_logic_vector( 7 downto 0);
-
+   type ram512k_t is array (0 to 512 * 1024 - 1) of std_logic_vector(7 downto 0);
+	
    signal cv_ram1k_r                      : ram1k_t;
    signal cv_ram1k_en_s                   : std_logic;
    signal cv_ram1k_addr_s                 : std_logic_vector( 9 downto 0);
    signal d_from_cv_ram1k_r               : std_logic_vector( 7 downto 0);
+   signal cv_ram512k_r                    : ram512k_t;
+   signal cv_ram512k_en_s                 : std_logic;
+   signal cv_ram512k_addr_s               : std_logic_vector( 9 downto 0);
+   signal d_from_cv_ram512k_r             : std_logic_vector( 7 downto 0);
 
    -- SGM RAM
    signal sgm_en_r                        : std_logic := '0';
@@ -525,26 +530,36 @@ begin
    cv_ram1k_addr_s <= cpu_addr_s(9 downto 0);
 
 
-   --
-   -- External SRAM, 512Kx8, 10ns
-   --
-   ext512 : entity work.ext512x8sram
-   port map
-   ( clk_i        => clk_25m0_i
-   -- Z80 CPU
-   , cpu_addr_i   => ext_ram_addr_s
-   , cpu_en_i     => ext_ram_en_s   -- active high
-   , cpu_we_n_i   => ext_ram_we_n_s -- active low
-   , cpu_data_i   => d_from_cpu_s
-   , cpu_data_o   => d_from_ext512_s
-   -- External SRAM Interface
-   , sram_addr_o  => sram_addr_o
-   , sram_data_io => sram_data_io
-   , sram_ce_n_o  => sram_ce_n_o
-   , sram_oe_n_o  => sram_oe_n_o
-   , sram_we_n_o  => sram_we_n_o
-   );
+--   --
+--   -- External SRAM, 512Kx8, 10ns
+--   --
+--   ext512 : entity work.ext512x8sram
+--   port map
+--   ( clk_i        => clk_25m0_i
+--   -- Z80 CPU
+--   , cpu_addr_i   => ext_ram_addr_s
+--   , cpu_en_i     => ext_ram_en_s   -- active high
+--   , cpu_we_n_i   => ext_ram_we_n_s -- active low
+--   , cpu_data_i   => d_from_cpu_s
+--   , cpu_data_o   => d_from_ext512_s
+--   -- External SRAM Interface
+--   , sram_addr_o  => sram_addr_o
+--   , sram_data_io => sram_data_io
+--   , sram_ce_n_o  => sram_ce_n_o
+--   , sram_oe_n_o  => sram_oe_n_o
+--   , sram_we_n_o  => sram_we_n_o
+--   );
 
+process(clk_25m0_i)
+begin
+    if rising_edge(clk_25m0_i) then
+        if ext_ram_we_n_s = '0' then
+            cv_ram512k_r(to_integer(unsigned(ext_ram_addr_s))) <= d_from_cpu_s; -- Escritura
+        else
+            d_from_ext512_s <= cv_ram512k_r(to_integer(unsigned(ext_ram_addr_s))); -- Lectura
+        end if;
+    end if;
+end process;
 
    --
    -- External Cartridge Interface

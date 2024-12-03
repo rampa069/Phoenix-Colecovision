@@ -5,6 +5,8 @@ Thumbs.db
 /ROMs/bootrom.zip
 /ROMs/Firmware/*.BIN
 /ROMs/Firmware/*.ROM
+/ROMs/Firmware/*.rom
+/ROMs/Firmware/*.bin
 /ROMs/Firmware/*.bit
 /ROMs/Firmware/*.mem
 /ROMs/loader/*.bin
@@ -23,3 +25,6 @@ Thumbs.db
 /ROMs/multcart/*.map
 /ROMs/multcart/*.noi
 /ROMs/multcart/obj
+*~
+*.bak
+
