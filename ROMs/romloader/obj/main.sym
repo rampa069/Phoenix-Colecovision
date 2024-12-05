@@ -1,0 +1,95 @@
+ASxxxx Assembler V02.00 + NoICE + SDCC mods  (Zilog Z80 / Hitachi HD64180 / ZX-Next / eZ80), page 1.
+Hexadecimal [16-Bits]
+
+Symbol Table
+
+    .__.$$$.                                                    =  2710 L
+    .__.ABS.                                                    =  0000 G
+    .__.CPU.                                                    =  0000 L
+    .__.H$L.                                                    =  0000 L
+  2 _CMDARGS                                                       000E GR
+    _CONT1_DATA_PORT                                            =  00FC 
+    _CONT2_DATA_PORT                                            =  00FF 
+    _CONT_JOY_PORT                                              =  00C0 
+    _CONT_KEY_PORT                                              =  0080 
+    _SD_CTRL_PORT                                               =  0056 
+    _SD_DATA_PORT                                               =  0057 
+    _VDP_CTRL_PORT                                              =  00BF 
+    _VDP_DATA_PORT                                              =  00BE 
+  0 ___str_1                                                       10BC R
+  0 ___str_10                                                      1110 R
+  0 ___str_11                                                      1115 R
+  0 ___str_12                                                      111A R
+  0 ___str_13                                                      111F R
+  0 ___str_2                                                       10CE R
+  0 ___str_3                                                       10D6 R
+  0 ___str_4                                                       10E0 R
+  0 ___str_5                                                       10EA R
+  0 ___str_6                                                       10F3 R
+  0 ___str_7                                                       10FD R
+  0 ___str_8                                                       1103 R
+  0 ___str_9                                                       110B R
+  7 __xinit__CMDARGS                                               000E R
+  7 __xinit__g_sd_addr_size                                        000B R
+  7 __xinit__g_sd_status                                           000C R
+  7 __xinit__g_sd_type                                             000D R
+  7 __xinit__g_sd_type_name                                        0003 R
+  7 __xinit__nmi_count_g                                           0000 R
+  7 __xinit__print_loc                                             0001 R
+  0 _cart_detect                                                   0CDD GR
+  1 _cart_detect_delay_65536_98                                    0003 R
+  1 _cart_detect_state_65536_98                                    0002 R
+  0 _disp_hex                                                      0956 GR
+  2 _g_sd_addr_size                                                000B GR
+  2 _g_sd_status                                                   000C GR
+  2 _g_sd_type                                                     000D GR
+  2 _g_sd_type_name                                                0003 GR
+  0 _hex                                                           081E GR
+  0 _joystick_read                                                 0D44 GR
+  1 _joystick_read_delay_65536_107                                 0005 R
+  1 _joystick_read_state_65536_107                                 0004 R
+  0 _main                                                          0E42 GR
+  0 _msx1_font                                                     001E R
+  2 _nmi_count_g                                                   0000 GR
+  0 _nmi_handler                                                   0000 GR
+  2 _print_loc                                                     0001 GR
+  0 _print_nl                                                      090E GR
+  0 _print_setxy                                                   093A GR
+  0 _print_str                                                     08BA GR
+  0 _print_str_nl                                                  092E GR
+  0 _print_str_sp                                                  08E8 GR
+ASxxxx Assembler V02.00 + NoICE + SDCC mods  (Zilog Z80 / Hitachi HD64180 / ZX-Next / eZ80), page 2.
+Hexadecimal [16-Bits]
+
+Symbol Table
+
+  0 _sd_card_detect                                                0C4F GR
+  1 _sd_card_detect_delay_65536_87                                 0001 R
+  1 _sd_card_detect_state_65536_87                                 0000 R
+  0 _sd_card_init                                                  09F5 GR
+  0 _sd_read_block                                                 0B94 GR
+  0 _sd_send_cmd                                                   09C9 GR
+  0 _sd_send_cmd_ex                                                0982 GR
+  0 _strlen                                                        08A0 GR
+  0 _swapin_real_cart                                              0E25 GR
+  0 _vdp_memcpy                                                    087C GR
+  0 _vdp_memset                                                    085B GR
+  0 _vdp_rd_addr                                                   000B GR
+  0 _vdp_wr_addr                                                   082F GR
+  0 _vdp_wtr                                                       0844 GR
+
+ASxxxx Assembler V02.00 + NoICE + SDCC mods  (Zilog Z80 / Hitachi HD64180 / ZX-Next / eZ80), page 3.
+Hexadecimal [16-Bits]
+
+Area Table
+
+   0 _CODE                                      size 1124   flags    0
+   1 _DATA                                      size    6   flags    0
+   2 _INITIALIZED                               size   12   flags    0
+   3 _DABS                                      size    0   flags    8
+   4 _HOME                                      size    0   flags    0
+   5 _GSINIT                                    size   30   flags    0
+   6 _GSFINAL                                   size    0   flags    0
+   7 _INITIALIZER                               size   12   flags    0
+   8 _CABS                                      size    0   flags    8
+

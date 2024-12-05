@@ -97,16 +97,24 @@ port
    ; blank_o               : out std_logic
    ; hsync_n_o             : out std_logic
    ; vsync_n_o             : out std_logic
+	; hblank_o              : out std_logic
+   ; vblank_o              : out std_logic
+
    ; red_o                 : out std_logic_vector( 3 downto 0)
    ; grn_o                 : out std_logic_vector( 3 downto 0)
    ; blu_o                 : out std_logic_vector( 3 downto 0)
-
-   -- External SRAM, 512Kx8, 10ns
-   ; sram_addr_o           : out    std_logic_vector(18 downto 0)
-   ; sram_data_io          : inout  std_logic_vector(7 downto 0)
-   ; sram_ce_n_o           : out    std_logic
-   ; sram_oe_n_o           : out    std_logic
-   ; sram_we_n_o           : out    std_logic
+	
+	-- SDRAM, reemplazo para la SRAM externa
+   ; SDRAM_A             : out    std_logic_vector(11 downto 0)
+   ; SDRAM_DQ            : inout  std_logic_vector(15 downto 0)
+   ; SDRAM_nCS           : out    std_logic
+   ; SDRAM_nRAS          : out    std_logic
+   ; SDRAM_nCAS          : out    std_logic
+   ; SDRAM_nWE           : out    std_logic
+   ; SDRAM_CKE           : out    std_logic
+   ; SDRAM_DQMH          : out    std_logic
+   ; SDRAM_DQML          : out    std_logic
+   ; SDRAM_BA            : out    std_logic_vector(1 downto 0)
 
    -- SD-card SPI interface
    ; sd_miso_i             : in  std_logic
@@ -162,7 +170,7 @@ architecture rtl of colecovision is
 
    -- Internal 1K RAM
    type ram1k_t is array (0 to 1023) of std_logic_vector( 7 downto 0);
-   type ram512k_t is array (0 to 512 * 1024 - 1) of std_logic_vector(7 downto 0);
+   type ram512k_t is array (0 to 256 * 1024 - 1) of std_logic_vector(7 downto 0);
 	
    signal cv_ram1k_r                      : ram1k_t;
    signal cv_ram1k_en_s                   : std_logic;
@@ -248,7 +256,7 @@ architecture rtl of colecovision is
    signal mc_en_x                         : std_logic;
 
 begin
-
+	
    -- Debug LED.
    led_o <= rom_loader_en_r;
 
@@ -345,6 +353,9 @@ begin
    , blank_o        => blank_o      -- active high during active video
    , hsync_o        => hsync_n_o
    , vsync_o        => vsync_n_o
+	, hblank_o       => hblank_o
+   , vblank_o       => vblank_o
+
    , red_o          => red_o        -- 4-bit red
    , grn_o          => grn_o        -- 4-bit green
    , blu_o          => blu_o        -- 4-bit blue
@@ -530,9 +541,9 @@ begin
    cv_ram1k_addr_s <= cpu_addr_s(9 downto 0);
 
 
---   --
---   -- External SRAM, 512Kx8, 10ns
---   --
+   --
+   -- External SRAM, 512Kx8, 10ns
+   --
 --   ext512 : entity work.ext512x8sram
 --   port map
 --   ( clk_i        => clk_25m0_i
@@ -550,16 +561,43 @@ begin
 --   , sram_we_n_o  => sram_we_n_o
 --   );
 
-process(clk_25m0_i)
-begin
-    if rising_edge(clk_25m0_i) then
-        if ext_ram_we_n_s = '0' then
-            cv_ram512k_r(to_integer(unsigned(ext_ram_addr_s))) <= d_from_cpu_s; -- Escritura
-        else
-            d_from_ext512_s <= cv_ram512k_r(to_integer(unsigned(ext_ram_addr_s))); -- Lectura
-        end if;
-    end if;
-end process;
+	
+ext512 : entity work.ssdram
+   generic map (
+      freq_g         => 100,           -- Frecuencia en MHz
+      rfsh_cycles_g  => 4096,          -- Número de ciclos de refresco
+      rfsh_period_g  => 64             -- Periodo de refresco en ms
+   )
+   port map (
+      -- Reloj y reset
+      clock_i        => clk_100m0_i,    -- Cambiar al reloj de 100 MHz si es necesario
+      reset_i        => not reset_n_s,         -- Debes definir una señal de reset adecuada
+      
+      -- Refresco SDRAM
+      refresh_i      => '1',           -- Señal para habilitar el refresco de SDRAM (dejar '1' si siempre está habilitado)
+      
+      -- Interfaz de RAM estática (desde Z80)
+      addr_i         => "0000" & ext_ram_addr_s,     -- Dirección de 23 bits
+      data_i         => d_from_cpu_s,       -- Datos desde CPU (8 bits)
+      data_o         => d_from_ext512_s,    -- Datos hacia CPU (8 bits)
+      cs_n_i         => not ext_ram_en_s,       -- Chip Select activo bajo (adaptar si necesario)
+      oe_n_i         => not ext_ram_we_n_s,     -- Output Enable activo bajo
+      we_n_i         => ext_ram_we_n_s,     -- Write Enable activo bajo
+      
+      -- Interfaz de SDRAM (nuevas señales)
+      mem_cke_o      => SDRAM_CKE,          -- Salida CKE del SDRAM
+      mem_cs_n_o     => SDRAM_nCS,          -- Salida CS (Chip Select) del SDRAM
+      mem_ras_n_o    => SDRAM_nRAS,         -- Salida RAS del SDRAM
+      mem_cas_n_o    => SDRAM_nCAS,         -- Salida CAS del SDRAM
+      mem_we_n_o     => SDRAM_nWE,          -- Salida WE (Write Enable) del SDRAM
+      mem_udq_o      => SDRAM_DQMH,         -- Salida Upper Data Mask del SDRAM
+      mem_ldq_o      => SDRAM_DQML,         -- Salida Lower Data Mask del SDRAM
+      mem_ba_o       => SDRAM_BA,           -- Salida Bank Address del SDRAM
+      mem_addr_o     => SDRAM_A,            -- Salida de dirección (12 bits) para SDRAM
+      
+      -- Interfaz de datos bidireccional para la SDRAM
+      mem_data_io    => SDRAM_DQ            -- Datos bidireccionales para SDRAM (16 bits)
+   );
 
    --
    -- External Cartridge Interface
@@ -579,6 +617,7 @@ end process;
    -- both halves of the 74245 are tied to the same FPGA output.
    -- New carts do not seem to tolerate invalid state on these lines
    -- even when the cartridge is not being addressed.
+	
    cart_oe_n_o    <= '0';
    cart_dir_o     <= rd_n_s;
 

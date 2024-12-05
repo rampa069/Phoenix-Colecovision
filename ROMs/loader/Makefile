@@ -4,7 +4,7 @@ CC     := sdcc
 AS     := sdasz80
 LD     := sdcc
 H2B    := hex2bin
-ROMGEN := romgen
+ROMGEN := wine ../../Utils/romgen.exe
 
 SDIR   := src
 IDIR   := inc
@@ -53,8 +53,13 @@ $(DIRGIT)/loaderrom.vhd: loader.pad.bin
 loader.mem: loader.pad.bin
 	$(ROMGEN) $< loaderrom 13 m r > $@
 
+#loader.pad.bin: loader.bin
+#	pad $< $@ 8192 255
+
+# Objetivo: Rellenar loader.bin a 8192 bytes con 0xFF
 loader.pad.bin: loader.bin
-	pad $< $@ 8192 255
+	dd if=$< of=$@ bs=1 count=8192 conv=sync
+	perl -e 'open F, "+<", "$@"; seek F, 0, 2; print F pack("C", 255) while tell(F) < 8192; close F'
 
 #loader.bin: loader.ihx
 
@@ -68,4 +73,4 @@ $(ODIR)/%.rel: $(SDIR)/%.c
 	$(CC) $(CFLAGS) -c -o $@ $<
 
 %.bin: %.ihx
-	$(H2B) -e bin $<
+	objcopy -I ihex -O binary loader.ihx loader.bin

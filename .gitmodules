@@ -1,6 +1,6 @@
 [submodule "COURTNEY"]
 	path = COURTNEY
 	url = https://github.com/SILICON-SEX/COURTNEY
-[submodule "NeptUNOplus/mist-modules"]
-	path = NeptUNOplus/mist-modules
+[submodule "BigMist/mist-modules"]
+	path = BigMist/mist-modules
 	url = https://github.com/mist-devel/mist-modules.git
